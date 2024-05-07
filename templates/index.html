@@ -3,34 +3,112 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spell Checker</title>
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
+    <title>Spell and Grammar Checker</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #333;
+      }
+      form {
+        margin-bottom: 20px;
+      }
+      textarea {
+        width: 100%;
+        height: 150px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        resize: none;
+      }
+      input[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      input[type="submit"]:hover {
+        background-color: #45a049;
+      }
+      h2 {
+        color: #333;
+        margin-top: 20px;
+      }
+      p {
+        color: #666;
+      }
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+      li {
+        margin-bottom: 5px;
+      }
+      .error {
+        color: #ff0000;
+      }
+      .speak-button {
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .speak-button:hover {
+        background-color: #0056b3;
+      }
+    </style>
   </head>
   <body>
-    <div class="container mt-5">
-      <h1 class="mb-4">Spell Checker</h1>
+    <div class="container">
+      <h1>Spell and Grammar Checker</h1>
       <form action="/check" method="post">
-        <div class="form-group">
-          <textarea
-            class="form-control"
-            name="text"
-            rows="5"
-            placeholder="Enter text to spell check"
-          ></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Check Spelling</button>
+        <textarea
+          name="text"
+          rows="10"
+          cols="50"
+          placeholder="Enter text here..."
+        ></textarea
+        ><br />
+        <input type="submit" value="Check" />
       </form>
-      <div class="mt-3">
-        <h2>Spell Check Results:</h2>
-        <p>{{ result }}</p>
-        <h2>Grammar Check Results:</h2>
-        <p>{{ grammar_errors }}</p>
-        <p><strong>Corrected Text:</strong></p>
-        <p>{{ corrected_text }}</p>
-      </div>
+      {% if misspelled_result %}
+      <h2>Misspelled Words:</h2>
+      <p class="error">{{ misspelled_result }}</p>
+      {% endif %} {% if grammar_result %}
+      <h2>Grammar Errors:</h2>
+      <ul>
+        {% for error in grammar_result %}
+        <li class="error">{{ error.ruleIssueType }}: {{ error.message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% if corrected_sentence %}
+      <h2>Corrected Sentence:</h2>
+      <p>{{ corrected_sentence }}</p>
+      <button class="speak-button" onclick="speak('{{ corrected_sentence }}')">
+        Speak
+      </button>
+      {% endif %}
     </div>
+    <script>
+      function speak(text) {
+        var msg = new SpeechSynthesisUtterance();
+        msg.text = text;
+        window.speechSynthesis.speak(msg);
+      }
+    </script>
   </body>
 </html>

@@ -1,31 +1,35 @@
 from flask import Flask, render_template, request
-from model import spell_check
-import enchant
+from model import spell_check, grammar_check, correct_sentence
 
 app = Flask(__name__)
 
 
 @app.route("/")
 def index():
-    return render_template("index.html", result="")
+    return render_template(
+        "index.html", misspelled_result="", grammar_result=[], corrected_sentence=""
+    )
 
 
 @app.route("/check", methods=["POST"])
-def check_spelling():
+def check_text():
     text = request.form["text"]
     misspelled_words = spell_check(text)
-    corrected_words = []
-    for word in misspelled_words:
-        suggestions = enchant.Dict("en_US").suggest(word)
-        corrected_word = suggestions[0] if suggestions else "No suggestion found"
-        corrected_words.append(corrected_word)
-    result = (
-        f"Misspelled words: {', '.join(misspelled_words)} and "
-        f"Corrected words: {', '.join(corrected_words)}"
+    grammar_errors = grammar_check(text)
+    corrected_text = correct_sentence(text)
+
+    misspelled_result = (
+        f"Misspelled words: {', '.join(misspelled_words)}"
         if misspelled_words
         else "No misspelled words found"
     )
-    return render_template("index.html", result=result)
+
+    return render_template(
+        "index.html",
+        misspelled_result=misspelled_result,
+        grammar_result=grammar_errors,
+        corrected_sentence=corrected_text,
+    )
 
 
 if __name__ == "__main__":
